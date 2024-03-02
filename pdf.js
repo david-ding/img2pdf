@@ -32,15 +32,20 @@ export class PDF {
   }
 
   async addImages(urls) {
-    for (const url of urls) {
-      await this.addImage(url);
+    try {
+      for (const url of urls) {
+        await this.addImage(url);
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
   async addImage(url) {
     const { margin } = this._options;
     const image = await this._fetchImage(url);
-    const { width, height } = this._getScaledDimensions(image);
+
+    let { width, height } = this._getScaledDimensions(image);
 
     if (this._currentY + height > PAGE_HEIGHT - margin) {
       this._pdfkitDoc.addPage();
@@ -61,22 +66,37 @@ export class PDF {
     return response.arrayBuffer();
   }
 
-  _getScaledDimensions(image) {
+  _getScaledDimensions(
+    image,
+    options = {
+      maxWidth: PAGE_WIDTH - this._options.margin * 2,
+      maxHeight: PAGE_HEIGHT - this._options.margin * 2,
+    }
+  ) {
     const dimensions = sizeOf(Buffer.from(image));
     if (!dimensions || !dimensions.width || !dimensions.height) {
       throw new Error("Invalid image - unable to get dimensions.");
     }
-    const maxWidth = PAGE_WIDTH - this._options.margin * 2;
-
     const { width, height } = dimensions;
-    if (width <= maxWidth) {
+    const aspectRatio = width / height;
+
+    const { maxWidth, maxHeight } = options;
+    const maxAspectRatio = maxWidth / maxHeight;
+
+    if (width <= maxWidth && height <= maxHeight) {
       return { width, height };
     }
 
-    const aspectRatio = width / height;
+    if (aspectRatio > maxAspectRatio) {
+      return {
+        width: maxWidth,
+        height: Math.round(maxWidth / aspectRatio),
+      };
+    }
+
     return {
-      width: maxWidth,
-      height: Math.round(maxWidth / aspectRatio),
+      width: Math.round(maxHeight * aspectRatio),
+      height: maxHeight,
     };
   }
 }
