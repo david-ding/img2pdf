@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:prod": "node index.js",
+    "docker:build": "docker buildx build --platform linux/arm64 -t davidding/img2pdf .",
+    "docker:publish": "docker push davidding/img2pdf",
+    "docker:bp": "docker buildx build --platform linux/arm64 --push -t davidding/img2pdf ."
   },
   "author": "",
   "license": "ISC",
