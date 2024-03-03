@@ -1,5 +1,6 @@
 import pdfkit from "pdfkit";
 import sizeOf from "image-size";
+import { fetchWithCache } from "./http.js";
 
 // A4 size 72 PPI
 const PAGE_WIDTH = 595;
@@ -62,7 +63,7 @@ export class PDF {
   }
 
   async _fetchImage(url) {
-    const response = await fetch(url);
+    const response = await fetchWithCache(url);
     return response.arrayBuffer();
   }
 

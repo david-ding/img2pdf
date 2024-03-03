@@ -1,3 +1,5 @@
+import { withCache } from "ultrafetch";
+
 export const getRequestPayload = (req) => {
   return new Promise((resolve, reject) => {
     let data = "";
@@ -12,3 +14,5 @@ export const getRequestPayload = (req) => {
     });
   });
 };
+
+export const fetchWithCache = withCache(fetch);
